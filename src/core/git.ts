@@ -40,7 +40,7 @@ export class GitManager {
         // Split by file headers
         const fileBlocks = rawDiff.split('diff --git');
 
-        // Your Senior-level Regex Filter
+        // Regex Filter
         const cleanBlocks = fileBlocks.filter(block => {
             return !NOISY_FILES.some(noise => {
                 const pattern = new RegExp(`(^|/)${noise.replace('.', '\\.')}($|/|\\s)`);
