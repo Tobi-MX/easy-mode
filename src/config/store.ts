@@ -35,4 +35,11 @@ export class ConfigStore {
             return null;
         }
     }
+
+    /**
+     * Saves the project context to disk
+     */
+    static save(config: ProjectConfig): void {
+        fs.writeFileSync(this.configPath, JSON.stringify(config, null, 2));
+    }
 }
