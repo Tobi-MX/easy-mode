@@ -21,6 +21,9 @@ export class GitManager {
         this.git = simpleGit();
     }
 
+    /**
+   * Checks if environment is a git repo, then get the current branch name
+   */
     async getContext() {
         const isRepo = await this.git.checkIsRepo();
         if (!isRepo) throw new Error('Not a git repository');
@@ -30,6 +33,10 @@ export class GitManager {
         return { branch };
     }
 
+    /**
+   * Pulls the combined filtered diff for a range of commits.
+   * @param count The number of commits to go back from HEAD.
+   */
     async getFilteredDiff(count: number): Promise<string> {
         const { branch } = await this.getContext();
         const logs = await this.git.log();
