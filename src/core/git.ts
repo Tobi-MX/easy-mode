@@ -35,7 +35,7 @@ export class GitManager {
      * Pulls the combined diff for a range of commits.
      * @param count The number of commits to go back from HEAD.
      */
-    async getSessionDiff(count: number): Promise<string> {
+    async getDiffRange(count: number): Promise<string> {
         await this.checkEnv();
 
         // Safety check: Don't request more commits than the history has
@@ -45,7 +45,29 @@ export class GitManager {
         // Extracts cumulative changes from N commits ago to the current state
         const diff = await this.git.diff([`HEAD~${safeCount}`, 'HEAD']);
 
-        // Cap length to 4000 chars to stay within LLM context efficiency
-        return diff.length > 4000 ? diff.substring(0, 4000) + "... [Truncated]" : diff;
+        return diff;
     }
+
+    /**
+     * Filters the diff by removing NOISY_FILES, Cap length to 8000 chars to stay within LLM context efficiency.
+     * @param count The number of commits to go back from HEAD.
+     */
+    async getFilteredDiff(count: number): Promise<string> {
+    const rawDiff = await this.getDiffRange(count);
+    
+    // Split the diff into individual file blocks
+    const fileBlocks = rawDiff.split('diff --git');
+
+    // Filter out blocks that match our "Noisy Files" list
+    const cleanBlocks = fileBlocks.filter(block => {
+      return !NOISY_FILES.some(noise => block.includes(noise));
+    });
+
+    const finalDiff = cleanBlocks.join('diff --git');
+
+    // Senior touch: Smart truncation that doesn't cut in the middle of a word
+    return finalDiff.length > 8000 
+      ? finalDiff.substring(0, 8000) + "\n... [Diff truncated for quality]" 
+      : finalDiff;
+  }
 }
