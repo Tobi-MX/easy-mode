@@ -1,6 +1,15 @@
 import { simpleGit } from 'simple-git';
 import type { SimpleGit } from 'simple-git';
 
+const NOISY_FILES = [
+    'package-lock.json',
+    'yarn.lock',
+    'pnpm-lock.yaml',
+    '.map',
+    'dist/',
+    'build/'
+];
+
 /**
  * GitManager: Responsible for extracting the "Muscle"
  * Handles multi-commit diffs with validation.
