@@ -21,53 +21,36 @@ export class GitManager {
         this.git = simpleGit();
     }
 
-    /**
-     * Validates if the environment is a Git repository.
-     */
-    async checkEnv(): Promise<void> {
+    async getContext() {
         const isRepo = await this.git.checkIsRepo();
-        if (!isRepo) {
-            throw new Error('Not a git repository. Run "git init" first.')
-        };
+        if (!isRepo) throw new Error('Not a git repository');
+
+        // Get the branch name for the "Meaning Layer"
+        const branch = await this.git.revparse(['--abbrev-ref', 'HEAD']);
+        return { branch };
     }
 
-    /**
-     * Pulls the combined diff for a range of commits.
-     * @param count The number of commits to go back from HEAD.
-     */
-    async getDiffRange(count: number): Promise<string> {
-        await this.checkEnv();
-
-        // Safety check: Don't request more commits than the history has
-        const log = await this.git.log();
-        const safeCount = Math.min(count, log.all.length);
-
-        // Extracts cumulative changes from N commits ago to the current state
-        const diff = await this.git.diff([`HEAD~${safeCount}`, 'HEAD']);
-
-        return diff;
-    }
-
-    /**
-     * Filters the diff by removing NOISY_FILES, Cap length to 8000 chars to stay within LLM context efficiency.
-     * @param count The number of commits to go back from HEAD.
-     */
     async getFilteredDiff(count: number): Promise<string> {
-    const rawDiff = await this.getDiffRange(count);
-    
-    // Split the diff into individual file blocks
-    const fileBlocks = rawDiff.split('diff --git');
+        const { branch } = await this.getContext();
+        const logs = await this.git.log();
+        const safeCount = Math.min(count, logs.all.length);
 
-    // Filter out blocks that match our "Noisy Files" list
-    const cleanBlocks = fileBlocks.filter(block => {
-      return !NOISY_FILES.some(noise => block.includes(noise));
-    });
+        const rawDiff = await this.git.diff([`HEAD~${safeCount}`, 'HEAD']);
 
-    const finalDiff = cleanBlocks.join('diff --git');
+        // Split by file headers
+        const fileBlocks = rawDiff.split('diff --git');
 
-    // Senior touch: Smart truncation that doesn't cut in the middle of a word
-    return finalDiff.length > 8000 
-      ? finalDiff.substring(0, 8000) + "\n... [Diff truncated for quality]" 
-      : finalDiff;
-  }
+        // Your Senior-level Regex Filter
+        const cleanBlocks = fileBlocks.filter(block => {
+            return !NOISY_FILES.some(noise => {
+                const pattern = new RegExp(`(^|/)${noise.replace('.', '\\.')}($|/|\\s)`);
+                return pattern.test(block);
+            });
+        });
+
+        const finalDiff = cleanBlocks.join('diff --git');
+
+        // Return the diff with the branch context prepended
+        return `Branch: ${branch}\n\n${finalDiff.slice(0, 8000)}`;
+    }
 }
