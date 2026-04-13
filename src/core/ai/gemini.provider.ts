@@ -13,14 +13,29 @@ export class GeminiProvider implements AIProvider {
     }
 
     async generateDraft(
-        config: ProjectConfig, 
-        branch: string, 
-        skeleton: string, 
-        muscle: string, 
+        config: ProjectConfig,
+        branch: string,
+        skeleton: string,
+        muscle: string,
         platform: Platform
     ): Promise<string> {
         const prompt = this.buildPrompt(config, branch, skeleton, muscle, platform);
         const result = await this.model.generateContent(prompt);
         return result.response.text();
+    }
+
+    private buildPrompt(
+        config: ProjectConfig,
+        branch: string,
+        skeleton: string,
+        muscle: string,
+        platform: Platform
+    ) {
+        return `Identify as: Senior Software Founder. 
+    Project: ${config.projectName} (${config.projectDescription}). 
+    Context: ${branch}. 
+    Structure: ${skeleton}. 
+    Changes: ${muscle}. 
+    Task: Write a ${platform} post focused on value and progress.`;
     }
 }
