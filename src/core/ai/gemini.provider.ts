@@ -35,7 +35,13 @@ export class GeminiProvider implements AIProvider {
     Project: ${config.projectName} (${config.projectDescription}). 
     Context: ${branch}. 
     Structure: ${skeleton}. 
-    Changes: ${muscle}. 
-    Task: Write a ${platform} post focused on value and progress.`;
+    Changes: ${muscle}.
+    Task: Analyze these technical changes and write a high-signal ${platform} post focused on value and progress.
+    POST GUIDELINES:
+      - Do not just list files. Explain the logic and the "Why".
+      - Tone: Professional builder. Confident but not arrogant.
+      - X (Twitter): Punchy, focused on shipping, under 280 chars.
+      - LinkedIn: Insightful, milestone-driven, formatted for readability.
+      - Output ONLY the post content.`;
     }
 }
