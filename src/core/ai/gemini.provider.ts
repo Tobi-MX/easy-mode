@@ -12,5 +12,15 @@ export class GeminiProvider implements AIProvider {
         this.model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     }
 
-    
+    async generateDraft(
+        config: ProjectConfig, 
+        branch: string, 
+        skeleton: string, 
+        muscle: string, 
+        platform: Platform
+    ): Promise<string> {
+        const prompt = this.buildPrompt(config, branch, skeleton, muscle, platform);
+        const result = await this.model.generateContent(prompt);
+        return result.response.text();
+    }
 }
