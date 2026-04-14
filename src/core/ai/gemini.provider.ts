@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { AIProvider } from "./provider.interface.js";
 import type { ProjectConfig } from "../../config/store.js";
 import type { Platform } from "../../types/index.js";
+import { APIProviderError } from "../../utils/error.js";
 
 export class GeminiProvider implements AIProvider {
     private model: any;
@@ -20,8 +21,16 @@ export class GeminiProvider implements AIProvider {
         platform: Platform
     ): Promise<string> {
         const prompt = this.buildPrompt(config, branch, skeleton, muscle, platform);
-        const result = await this.model.generateContent(prompt);
-        return result.response.text();
+        try {
+            const result = await this.model.generateContent(prompt);
+            return result.response.text();
+        } catch (error: any) {
+            // Log the actual error for debugging behind the scenes
+            console.error("Gemini API Error details:", error.message);
+
+            // Throw our custom error so the CLI UI handles it gracefully
+            throw new APIProviderError("Failed to communicate with Google Gemini.");
+        }
     }
 
     private buildPrompt(
