@@ -25,7 +25,10 @@ export class ProjectScanner {
                     lines += `${prefix}${item}\n`;
                     if (isDirectory) lines += walk(fullPath, currentDepth + 1);
                 });
-            } catch { return ''; }
+            } catch {
+                return '';
+            }
+
             return lines;
         };
 
