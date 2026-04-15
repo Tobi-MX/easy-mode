@@ -23,16 +23,17 @@ async function main() {
     // 2. Muscle: Initialize Git & Commit Selection
     const git = new GitManager();
 
-    const commitCount = await p.select({
+    const selection = await p.select({
         message: 'How much progress are we summarizing?',
         options: [
-            { value: 1, label: 'Last commit only' },
-            { value: 3, label: 'Last 3 commits', hint: 'Best for daily updates' },
-            { value: 5, label: 'Last 5 commits', hint: 'Deep work session' },
+            { value: '1', label: 'Last commit only' },
+            { value: '3', label: 'Last 3 commits', hint: 'Recommended' },
+            { value: '5', label: 'Last 5 commits' },
+            { value: 'custom', label: '🔢 Enter custom number' },
         ],
     });
 
-    if (p.isCancel(commitCount)) {
+    if (p.isCancel(selection)) {
         p.cancel('Operation cancelled.');
         process.exit(0);
     }
