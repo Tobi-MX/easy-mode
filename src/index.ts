@@ -7,6 +7,7 @@ import { GeminiProvider } from './core/ai/gemini.provider';
 import { EasyModeError } from './utils/errors';
 import { runSetupWizard } from './cli/setup';
 import { Platform } from './types';
+import clipboard from 'clipboardy';
 import 'dotenv/config';
 
 async function main() {
@@ -103,7 +104,22 @@ async function main() {
         // Output: Display the result
         p.note(draft, `Your ${platform} Draft`);
 
-        p.outro('Copy the draft above and keep building! 🚀');
+        // New Clipboard Logic
+        const shouldCopy = await p.confirm({
+            message: 'Copy draft to clipboard?',
+            initialValue: true,
+        });
+
+        if (!p.isCancel(shouldCopy) && shouldCopy) {
+            try {
+                clipboard.writeSync(draft);
+                p.log.success('📋 Draft copied to clipboard!');
+            } catch (err) {
+                p.log.error('❌ Failed to copy to clipboard.');
+            }
+        }
+
+        p.outro('Ship it! 🚀');
 
     } catch (err: unknown) {
         s.stop('Extraction failed.');

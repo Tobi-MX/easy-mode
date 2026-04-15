@@ -46,6 +46,7 @@ export class GeminiProvider implements AIProvider {
     Changes: ${muscle}.
     Task: Analyze these technical changes and write a high-signal ${platform} post focused on value and progress.
     POST GUIDELINES:
+      - Make sure everything is based on context provided.
       - Do not just list files. Explain the logic and the "Why".
       - Tone: Professional builder. Confident but not arrogant.
       - If for X (Twitter): Punchy, focused on shipping, under 280 chars.
