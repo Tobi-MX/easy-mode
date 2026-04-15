@@ -10,7 +10,14 @@ import 'dotenv/config';
 async function main() {
     p.intro('🚀 Easy Mode: High-Signal Shipping');
 
-    
+    // 1. Memory: Load or Initialize Project Context
+    let config = ConfigStore.get();
+    if (!config) {
+        p.log.warn('No project context found.');
+        // calling setup wizard here
+        p.cancel('Please run setup first or create .easymode.json');
+        return process.exit(0);
+    }
 }
 
 main();
