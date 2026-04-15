@@ -37,6 +37,30 @@ async function main() {
         p.cancel('Operation cancelled.');
         process.exit(0);
     }
+
+    let commitCount: number;
+
+    if (selection === 'custom') {
+        const customCount = await p.text({
+            message: 'How many recent commits should I analyze?',
+            validate: (value: string | undefined) => {
+                if (value) {
+                    const num = parseInt(value);
+                    if (isNaN(num) || num <= 0) return 'Please enter a valid positive number';
+                }
+            }
+        });
+
+        if (p.isCancel(customCount)) {
+            p.cancel('Operation cancelled.');
+            process.exit(0);
+        }
+
+        commitCount = parseInt(customCount as string);
+    } else {
+        // Safe to parse we defined the values as '1', '3', '5'
+        commitCount = parseInt(selection as string);
+    }
 }
 
 main();
