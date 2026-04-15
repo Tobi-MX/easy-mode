@@ -58,8 +58,22 @@ async function main() {
 
         commitCount = parseInt(customCount as string);
     } else {
-        // Safe to parse we defined the values as '1', '3', '5'
+        // Safe to parse, the values are '1', '3', '5'
         commitCount = parseInt(selection as string);
+    }
+
+    const platform = await p.select({
+        message: 'Select target platform:',
+        options: [
+            { value: 'X', label: '𝕏 (Twitter)' },
+            { value: 'LINKEDIN', label: 'LinkedIn' },
+            {value: 'DISCORD', label: 'Discord'}
+        ],
+    });
+
+    if (p.isCancel(platform)) {
+        p.cancel('Operation cancelled.');
+        process.exit(0);
     }
 }
 
