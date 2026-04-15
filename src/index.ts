@@ -100,8 +100,23 @@ async function main() {
 
         s.stop('Draft Generated!');
 
+        // Output: Display the result
+        p.note(draft, `Your ${platform} Draft`);
+
+        p.outro('Copy the draft above and keep building! 🚀');
+
     } catch (err: unknown) {
-        
+        s.stop('Extraction failed.');
+
+        if (err instanceof EasyModeError) {
+            p.log.error(`❌ ${err.message}`);
+            if (err.suggestion) p.log.info(`💡 Tip: ${err.suggestion}`);
+        } else {
+            p.log.error('An unexpected error occurred.');
+            console.error(err);
+        }
+
+        process.exit(1);
     }
 }
 
