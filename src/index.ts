@@ -112,7 +112,7 @@ async function main() {
             p.log.error(`❌ ${err.message}`);
             if (err.suggestion) p.log.info(`💡 Tip: ${err.suggestion}`);
         } else {
-            p.log.error('An unexpected error occurred.');
+            p.log.error('An unexpected error occurred!');
             console.error(err);
         }
 
