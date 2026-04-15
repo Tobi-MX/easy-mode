@@ -1,5 +1,5 @@
-import type { ProjectConfig } from '../../config/store.js';
-import type { Platform } from '../../types/index.js';
+import type { ProjectConfig } from '../../config/store';
+import type { Platform } from '../../types/index';
 
 export interface AIProvider {
     generateDraft(

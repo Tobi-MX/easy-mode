@@ -1,8 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import type { AIProvider } from "./provider.interface.js";
-import type { ProjectConfig } from "../../config/store.js";
-import type { Platform } from "../../types/index.js";
-import { APIProviderError } from "../../utils/error.js";
+import type { AIProvider } from "./provider.interface";
+import type { ProjectConfig } from "../../config/store";
+import type { Platform } from "../../types/index";
+import { APIProviderError } from "../../utils/errors";
 
 export class GeminiProvider implements AIProvider {
     private model: any;

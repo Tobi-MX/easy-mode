@@ -10,7 +10,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
+
   "dependencies": {
     "@clack/prompts": "^1.2.0",
     "@google/generative-ai": "^0.24.1",
