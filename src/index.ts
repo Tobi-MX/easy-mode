@@ -6,6 +6,7 @@ import { AIService } from './core/ai/index';
 import { GeminiProvider } from './core/ai/gemini.provider';
 import { EasyModeError } from './utils/errors';
 import { runSetupWizard } from './cli/setup';
+import { Platform } from './types';
 import 'dotenv/config';
 
 async function main() {
@@ -67,13 +68,40 @@ async function main() {
         options: [
             { value: 'X', label: '𝕏 (Twitter)' },
             { value: 'LINKEDIN', label: 'LinkedIn' },
-            {value: 'DISCORD', label: 'Discord'}
+            { value: 'DISCORD', label: 'Discord' }
         ],
     });
 
     if (p.isCancel(platform)) {
         p.cancel('Operation cancelled.');
         process.exit(0);
+    }
+
+    const s = p.spinner();
+    s.start('Gathering context and consulting the AI...');
+
+    try {
+        // Extraction: Get Branch, Diff, and Skeleton
+        const { branch } = await git.getContext();
+        const muscle = await git.getFilteredDiff(commitCount as number);
+        const skeleton = ProjectScanner.getSkeleton();
+
+        // Brain: Execute AI Generation with Gemini
+        const provider = new GeminiProvider(process.env.GEMINI_API_KEY!);
+        const ai = new AIService(provider);
+
+        const draft = await ai.generateWithRetry(
+            config,
+            branch,
+            skeleton,
+            muscle,
+            platform as Platform
+        );
+
+        s.stop('Draft Generated!');
+
+    } catch (err: unknown) {
+        
     }
 }
 

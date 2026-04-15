@@ -1,5 +1,5 @@
 import * as p from '@clack/prompts';
-import { ConfigStore, ProjectConfig } from '../config/store.js';
+import { ConfigStore, ProjectConfig } from '../config/store';
 
 export async function runSetupWizard(): Promise<ProjectConfig> {
     const project = await p.group(
@@ -22,7 +22,7 @@ export async function runSetupWizard(): Promise<ProjectConfig> {
           }
         }),
     },
-    
+
     {
       onCancel: () => {
         p.cancel('Setup cancelled.');
