@@ -9,8 +9,7 @@ export class GeminiProvider implements AIProvider {
 
     constructor(apiKey: string) {
         const genAI = new GoogleGenerativeAI(apiKey);
-        // 1.5 Flash is great for high-volume technical diffs
-        this.model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        this.model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
     }
 
     async generateDraft(
@@ -49,8 +48,8 @@ export class GeminiProvider implements AIProvider {
     POST GUIDELINES:
       - Do not just list files. Explain the logic and the "Why".
       - Tone: Professional builder. Confident but not arrogant.
-      - X (Twitter): Punchy, focused on shipping, under 280 chars.
-      - LinkedIn: Insightful, milestone-driven, formatted for readability.
+      - If for X (Twitter): Punchy, focused on shipping, under 280 chars.
+      - If for LinkedIn: Insightful, milestone-driven, formatted for readability.
       - Output ONLY the post content.`;
     }
 }
