@@ -5,6 +5,7 @@ import { ConfigStore } from './config/store';
 import { AIService } from './core/ai/index';
 import { GeminiProvider } from './core/ai/gemini.provider';
 import { EasyModeError } from './utils/errors';
+import { runSetupWizard } from './cli/setup';
 import 'dotenv/config';
 
 async function main() {
@@ -12,11 +13,11 @@ async function main() {
 
     // 1. Memory: Load or Initialize Project Context
     let config = ConfigStore.get();
+
     if (!config) {
-        p.log.warn('No project context found.');
-        // calling setup wizard here
-        p.cancel('Please run setup first or create .easymode.json');
-        return process.exit(0);
+        p.log.info("👋 It looks like this is a new project!");
+        config = await runSetupWizard(); // The "Wizard" call
+        p.log.success("✅ Project context saved to .easymode.json");
     }
 }
 
