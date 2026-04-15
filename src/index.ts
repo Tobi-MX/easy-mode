@@ -19,6 +19,23 @@ async function main() {
         config = await runSetupWizard(); // The "Wizard" call
         p.log.success("✅ Project context saved to .easymode.json");
     }
+
+    // 2. Muscle: Initialize Git & Commit Selection
+    const git = new GitManager();
+
+    const commitCount = await p.select({
+        message: 'How much progress are we summarizing?',
+        options: [
+            { value: 1, label: 'Last commit only' },
+            { value: 3, label: 'Last 3 commits', hint: 'Best for daily updates' },
+            { value: 5, label: 'Last 5 commits', hint: 'Deep work session' },
+        ],
+    });
+
+    if (p.isCancel(commitCount)) {
+        p.cancel('Operation cancelled.');
+        process.exit(0);
+    }
 }
 
 main();
