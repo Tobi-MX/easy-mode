@@ -1,34 +1,44 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, type GenerativeModel } from "@google/generative-ai";
 import type { AIProvider } from "./provider.interface";
 import type { ProjectConfig } from "../../config/store";
 import type { Platform } from "../../types/index";
 import { APIProviderError } from "../../utils/errors";
+import * as fs from 'fs';
 
 export class GeminiProvider implements AIProvider {
-    private model: any;
+    private model: GenerativeModel;
 
     constructor(apiKey: string) {
         const genAI = new GoogleGenerativeAI(apiKey);
         this.model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
     }
 
-    async generateDraft(
+    async *generateDraftStream(
         config: ProjectConfig,
         branch: string,
         skeleton: string,
         muscle: string,
-        platform: Platform
-    ): Promise<string> {
+        platform: Platform,
+        imagePath?: string
+    ): AsyncGenerator<string> {
         const prompt = this.buildPrompt(config, branch, skeleton, muscle, platform);
-        try {
-            const result = await this.model.generateContent(prompt);
-            return result.response.text();
-        } catch (error: any) {
-            // Log the actual error for debugging behind the scenes
-            console.error("Gemini API Error details:", error.message);
+        const parts: any[] = [{ text: prompt }];
 
-            // Throw our custom error so the CLI UI handles it gracefully
-            throw new APIProviderError("Failed to communicate with Google Gemini.");
+        if (imagePath && fs.existsSync(imagePath)) {
+            parts.push({
+                inlineData: {
+                    data: fs.readFileSync(imagePath).toString("base64"),
+                    mimeType: "image/png", // Should be dynamic in production
+                },
+            });
+        }
+        try {
+            const result = await this.model.generateContentStream(parts);
+            for await (const chunk of result.stream) {
+                yield chunk.text();
+            }
+        } catch (error: any) {
+            throw new APIProviderError(`Gemini Stream Error: ${error.message}`);
         }
     }
 
