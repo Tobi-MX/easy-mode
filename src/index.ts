@@ -9,6 +9,7 @@ import { runSetupWizard } from './cli/setup';
 import { Platform } from './types';
 import clipboard from 'clipboardy';
 import 'dotenv/config';
+import { openInEditor } from './cli/editor';
 
 async function main() {
     p.intro('🚀 Easy Mode: High-Signal Shipping');
@@ -78,6 +79,7 @@ async function main() {
         process.exit(0);
     }
 
+    let finalDraft = ''
     const s = p.spinner();
     s.start('Gathering context and consulting the AI...');
 
@@ -91,7 +93,7 @@ async function main() {
         const provider = new GeminiProvider(process.env.GEMINI_API_KEY!);
         const ai = new AIService(provider);
 
-        const draft = await ai.generateWithRetry(
+        const stream = ai.generateWithRetry(
             config,
             branch,
             skeleton,
@@ -100,9 +102,47 @@ async function main() {
         );
 
         s.stop('Draft Generated!');
+        process.stdout.write('\n');
 
-        // Output: Display the result
-        p.note(draft, `Your ${platform} Draft`);
+        for await (const chunk of stream) {
+            finalDraft += chunk;
+            process.stdout.write(chunk); // character by character stream
+        }
+        process.stdout.write('\n\n');
+
+        // The Edit Loop
+        let userSatisfied = false;
+        while (!userSatisfied) {
+            const action = await p.select({
+                message: 'What is the move?',
+                options: [
+                    { value: 'ship', label: '🚀 Ship it (Copy to Clipboard)' },
+                    { value: 'edit', label: '✍️ Manual Edit' },
+                    { value: 'refine', label: '🤖 AI Refine' },
+                    { value: 'cancel', label: '❌ Trash it' },
+                ]
+            });
+
+            if (action === 'ship') {
+                clipboard.writeSync(finalDraft);
+                p.log.success('📋 Copied to clipboard! Ready to post.');
+                userSatisfied = true;
+
+            } else if (action === 'edit') {
+                finalDraft = await openInEditor(finalDraft);
+
+            } else if (action === 'refine') {
+                const feedback = await p.text({ message: 'What should the AI change?' });
+                if (!p.isCancel(feedback)) {
+                    s.start('Refining...');
+                    finalDraft = await provider.refineDraft(finalDraft, feedback as string);
+                    s.stop('Refined!');
+                }
+            } else {
+                p.cancel('Build discarded.');
+                process.exit(0);
+            }
+        }
 
         // New Clipboard Logic
         const shouldCopy = await p.confirm({
