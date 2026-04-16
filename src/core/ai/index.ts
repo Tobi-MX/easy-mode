@@ -9,9 +9,9 @@ export class AIService {
     /**
      * Generates a draft with a simple retry mechanism for rate limiting.
      */
-    async generateWithRetry(config: ProjectConfig, branch: string, skeleton: string, muscle: string, platform: Platform, retries = 2): Promise<string> {
+    async *generateWithRetry(config: ProjectConfig, branch: string, skeleton: string, muscle: string, platform: Platform, retries = 2): AsyncGenerator<string> {
         try {
-            return await this.provider.generateDraft(config, branch, skeleton, muscle, platform);
+            return this.provider.generateDraftStream(config, branch, skeleton, muscle, platform);
         } catch (error: any) {
             if (retries > 0 && error.status === 429) {
                 console.log("\n⚠️ Rate limit hit. Retrying in 2 seconds...");

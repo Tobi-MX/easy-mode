@@ -42,6 +42,19 @@ export class GeminiProvider implements AIProvider {
         }
     }
 
+    /**
+     * Used for the "Refine" feature in the Edit Loop.
+     */
+    async refineDraft(currentDraft: string, feedback: string): Promise<string> {
+        const prompt = `CURRENT DRAFT: "${currentDraft}"\n\nFEEDBACK: "${feedback}"\n\nRewrite the draft based on the feedback. Output ONLY the new draft.`;
+        try {
+            const result = await this.model.generateContent(prompt);
+            return result.response.text();
+        } catch (error: any) {
+            throw new APIProviderError("Refinement failed.");
+        }
+    }
+
     private buildPrompt(
         config: ProjectConfig,
         branch: string,
