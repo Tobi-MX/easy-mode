@@ -110,6 +110,8 @@ async function main() {
         }
         process.stdout.write('\n\n');
 
+        p.note(finalDraft, `Your ${platform} Draft`);
+
         // The Edit Loop
         let userSatisfied = false;
         while (!userSatisfied) {
