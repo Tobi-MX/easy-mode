@@ -152,7 +152,7 @@ async function main() {
 
         if (!p.isCancel(shouldCopy) && shouldCopy) {
             try {
-                clipboard.writeSync(draft);
+                clipboard.writeSync(finalDraft);
                 p.log.success('📋 Draft copied to clipboard!');
             } catch (err) {
                 p.log.error('❌ Failed to copy to clipboard.');
