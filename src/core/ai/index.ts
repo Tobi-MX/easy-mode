@@ -41,8 +41,23 @@ export class AIService {
     /**
      * Refines an existing draft based on user feedback.
      */
-    async refine(currentDraft: string, feedback: string): Promise<string> {
+    async refine(
+        config: ProjectConfig,
+        branch: string, 
+        skeleton: string, 
+        muscle: string, 
+        platform: Platform, 
+        currentDraft: string, 
+        feedback: string): Promise<string> {
         // We could also add retry logic here if needed
-        return await this.provider.refineDraft(currentDraft, feedback);
+        return await this.provider.refineDraft(
+            config, 
+            branch, 
+            skeleton, 
+            muscle, 
+            platform, 
+            currentDraft, 
+            feedback
+        );
     }
 }

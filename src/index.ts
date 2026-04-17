@@ -137,7 +137,15 @@ async function main() {
                 const feedback = await p.text({ message: 'What should the AI change?' });
                 if (!p.isCancel(feedback)) {
                     s.start('Refining...');
-                    finalDraft = await provider.refineDraft(finalDraft, feedback as string);
+                    finalDraft = await ai.refine(
+                        config, 
+                        branch, 
+                        skeleton, 
+                        muscle, 
+                        platform, 
+                        finalDraft as Platform, 
+                        feedback as string
+                    );
                     p.note(finalDraft, `Your ${platform} Draft`);
                     s.stop('Refined!');
                 }

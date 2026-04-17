@@ -9,8 +9,13 @@ export interface AIProvider {
         muscle: string,
         platform: Platform
     ): AsyncGenerator<string, any, any>;
-    
+
     refineDraft(
+        config: ProjectConfig,
+        branch: string,
+        skeleton: string,
+        muscle: string,
+        platform: Platform,
         currentDraft: string, 
         feedback: string
     ): Promise<string>;
