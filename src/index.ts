@@ -93,7 +93,7 @@ async function main() {
         const provider = new GeminiProvider(process.env.GEMINI_API_KEY!);
         const ai = new AIService(provider);
 
-        const stream = ai.generateWithRetry(
+        const stream = provider.generateDraftStream(
             config,
             branch,
             skeleton,
@@ -101,7 +101,6 @@ async function main() {
             platform as Platform
         );
 
-        s.stop('Draft Generated!');
         process.stdout.write('\n');
 
         for await (const chunk of stream) {
@@ -111,6 +110,7 @@ async function main() {
         process.stdout.write('\n\n');
 
         p.note(finalDraft, `Your ${platform} Draft`);
+        s.stop('Draft Generated!');
 
         // The Edit Loop
         let userSatisfied = false;
@@ -145,23 +145,6 @@ async function main() {
                 process.exit(0);
             }
         }
-
-        // New Clipboard Logic
-        const shouldCopy = await p.confirm({
-            message: 'Copy draft to clipboard?',
-            initialValue: true,
-        });
-
-        if (!p.isCancel(shouldCopy) && shouldCopy) {
-            try {
-                clipboard.writeSync(finalDraft);
-                p.log.success('📋 Draft copied to clipboard!');
-            } catch (err) {
-                p.log.error('❌ Failed to copy to clipboard.');
-            }
-        }
-
-        p.outro('Ship it! 🚀');
 
     } catch (err: unknown) {
         s.stop('Extraction failed.');
