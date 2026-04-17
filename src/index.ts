@@ -131,19 +131,29 @@ async function main() {
                 userSatisfied = true;
 
             } else if (action === 'edit') {
-                finalDraft = await openInEditor(finalDraft);
+                // We use p.text but pre-fill it with the finalDraft
+                const edited = await p.text({
+                    message: 'Edit your draft (Enter to save, Esc to go back):',
+                    initialValue: finalDraft, // This pre-fills the prompt with the AI text
+                    validate: (value: string | undefined) => {
+                        if (!value || value.length < 10) return 'Draft is too short!';
+                    }
+                });
 
+                if (!p.isCancel(edited)) {
+                    finalDraft = edited as string;
+                }
             } else if (action === 'refine') {
                 const feedback = await p.text({ message: 'What should the AI change?' });
                 if (!p.isCancel(feedback)) {
                     s.start('Refining...');
                     finalDraft = await ai.refine(
-                        config, 
-                        branch, 
-                        skeleton, 
-                        muscle, 
-                        platform, 
-                        finalDraft as Platform, 
+                        config,
+                        branch,
+                        skeleton,
+                        muscle,
+                        platform,
+                        finalDraft as Platform,
                         feedback as string
                     );
                     p.note(finalDraft, `Your ${platform} Draft`);
