@@ -138,6 +138,7 @@ async function main() {
                 if (!p.isCancel(feedback)) {
                     s.start('Refining...');
                     finalDraft = await provider.refineDraft(finalDraft, feedback as string);
+                    p.note(finalDraft, `Your ${platform} Draft`);
                     s.stop('Refined!');
                 }
             } else {
