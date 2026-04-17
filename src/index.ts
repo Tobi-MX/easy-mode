@@ -91,7 +91,7 @@ async function main() {
 
         // Brain: Execute AI Generation with Gemini
         const provider = new GeminiProvider(process.env.GEMINI_API_KEY!);
-        const ai = new AIService(provider);
+        // const ai = new AIService(provider);
 
         const stream = provider.generateDraftStream(
             config,
@@ -101,6 +101,7 @@ async function main() {
             platform as Platform
         );
 
+        s.stop('Brain Connected. Generating:');
         process.stdout.write('\n');
 
         for await (const chunk of stream) {
@@ -109,7 +110,6 @@ async function main() {
         }
         process.stdout.write('\n\n');
 
-        p.note(finalDraft, `Your ${platform} Draft`);
         s.stop('Draft Generated!');
 
         // The Edit Loop
