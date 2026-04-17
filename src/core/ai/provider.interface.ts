@@ -9,4 +9,9 @@ export interface AIProvider {
         muscle: string,
         platform: Platform
     ): AsyncGenerator<string, any, any>;
+    
+    refineDraft(
+        currentDraft: string, 
+        feedback: string
+    ): Promise<string>;
 }

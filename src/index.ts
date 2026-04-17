@@ -91,9 +91,9 @@ async function main() {
 
         // Brain: Execute AI Generation with Gemini
         const provider = new GeminiProvider(process.env.GEMINI_API_KEY!);
-        // const ai = new AIService(provider);
+        const ai = new AIService(provider);
 
-        const stream = provider.generateDraftStream(
+        const stream = ai.generateWithRetry(
             config,
             branch,
             skeleton,
