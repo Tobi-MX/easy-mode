@@ -81,7 +81,7 @@ async function main() {
 
     let finalDraft = ''
     const s = p.spinner();
-    s.start('Gathering context and consulting the AI...');
+    s.start('Connecting to brain...');
 
     try {
         // Extraction: Get Branch, Diff, and Skeleton
@@ -101,7 +101,7 @@ async function main() {
             platform as Platform
         );
 
-        s.stop('Brain Connected. Generating:');
+        //s.stop('Brain Connected. Generating:');
         process.stdout.write('\n');
 
         for await (const chunk of stream) {

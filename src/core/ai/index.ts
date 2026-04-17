@@ -27,7 +27,7 @@ export class AIService {
             if (retries > 0 && error.status === 429) {
                 console.log("\n⚠️ Rate limit hit. Retrying in 2 seconds...");
                 await new Promise(res => setTimeout(res, 2000));
-                return this.generateWithRetry(config, branch, skeleton, muscle, platform, retries - 1);
+                yield* this.generateWithRetry(config, branch, skeleton, muscle, platform, retries - 1);
             }
 
             if (error.status === 429) {
