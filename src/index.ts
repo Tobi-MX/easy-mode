@@ -101,7 +101,7 @@ async function main() {
             platform as Platform
         );
 
-        //s.stop('Brain Connected. Generating:');
+        s.stop('Brain Connected. Generating:');
         process.stdout.write('\n');
 
         for await (const chunk of stream) {
