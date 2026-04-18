@@ -10,7 +10,7 @@ export class GeminiProvider implements AIProvider {
 
     constructor(apiKey: string) {
         const genAI = new GoogleGenerativeAI(apiKey);
-        this.model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        this.model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
     }
 
     async *generateDraftStream(
@@ -102,6 +102,13 @@ export class GeminiProvider implements AIProvider {
     Diffs: ${muscle}
     
     OUTPUT: A punchy, milestone-driven post focused on technical progress.
+
+    POST GUIDELINES:
+      - Make sure everything is based on context provided.
+      - Do not just list files. Explain the logic and the "Why".
+      - If for X (Twitter): Punchy, quality, under 280 chars.
+      - If for LinkedIn: Insightful, milestone-driven, quality, formatted for readability.
+      - Output ONLY the post content.
     [/INST]
     `;
     }
@@ -141,6 +148,13 @@ export class GeminiProvider implements AIProvider {
     Diffs: ${muscle}
     
     OUTPUT: A punchy, milestone-driven post focused on technical progress.
+
+    POST GUIDELINES:
+      - Make sure everything is based on context provided.
+      - Do not just list files. Explain the logic and the "Why".
+      - If for X (Twitter): Punchy, quality, under 280 chars.
+      - If for LinkedIn: Insightful, milestone-driven, quality, formatted for readability.
+      - Output ONLY the post content.
     [/INST]
     `;
     }
