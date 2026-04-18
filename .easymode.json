@@ -1,4 +1,7 @@
 {
   "projectName": "Easy Mode CLI",
-  "projectDescription": "Automating social proof for developers"
+  "projectDescription": "Automating social proof for developers",
+  "styleProfile": {
+    "tone": "builder"
+  }
 }

@@ -82,7 +82,7 @@ export class GeminiProvider implements AIProvider {
     ${config.styleProfile.vocabulary ? `FAVORED TERMS: ${config.styleProfile.vocabulary.join(', ')}` : ''}
     ${config.styleProfile.bannedWords ? `NEVER USE: ${config.styleProfile.bannedWords.join(', ')}` : ''}
 
-    Task: CURRENT DRAFT: "${currentDraft}"FEEDBACK: "${feedback}"Rewrite the draft based on the feedback for a ${platform}. Output ONLY the new draft.
+    Task: CURRENT DRAFT: "${currentDraft}"FEEDBACK: "${feedback}"Rewrite the draft based on the feedback for ${platform}. Output ONLY the new draft.
     POST GUIDELINES:
       - Make sure everything is based on context provided.
       - Do not just list files. Explain the logic and the "Why".

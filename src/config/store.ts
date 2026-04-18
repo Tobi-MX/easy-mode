@@ -7,7 +7,7 @@ export const ProjectConfigSchema = z.object({
     projectName: z.string().min(1, "Project name cannot be empty"),
     projectDescription: z.string().min(10, "Give a bit more detail (min 10 chars)"),
     styleProfile: z.object({
-        tone: z.enum(['stoic', 'energetic', 'academic', 'builder']),
+        tone: z.enum(['stoic', 'energetic', 'academic', 'builder']).optional(),
         vocabulary: z.array(z.string()).optional(), // Words you LOVE to use
         bannedWords: z.array(z.string()).optional(), // Words you HATE
     }).default({ tone: 'builder' })
