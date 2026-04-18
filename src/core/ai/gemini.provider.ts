@@ -77,13 +77,18 @@ export class GeminiProvider implements AIProvider {
     Context: ${branch}. 
     Structure: ${skeleton}. 
     Changes: ${muscle}.
+    
+    PERSONALITY ANCHOR: Your voice is ${config.styleProfile.tone}. 
+    ${config.styleProfile.vocabulary ? `FAVORED TERMS: ${config.styleProfile.vocabulary.join(', ')}` : ''}
+    ${config.styleProfile.bannedWords ? `NEVER USE: ${config.styleProfile.bannedWords.join(', ')}` : ''}
+
     Task: CURRENT DRAFT: "${currentDraft}"FEEDBACK: "${feedback}"Rewrite the draft based on the feedback for a ${platform}. Output ONLY the new draft.
     POST GUIDELINES:
       - Make sure everything is based on context provided.
       - Do not just list files. Explain the logic and the "Why".
       - Tone: Professional builder. Confident but not arrogant.
-      - If for X (Twitter): Punchy, focused on shipping, under 280 chars.
-      - If for LinkedIn: Insightful, milestone-driven, formatted for readability.
+      - If for X (Twitter): Punchy, quality, under 280 chars.
+      - If for LinkedIn: Insightful, milestone-driven, quality, formatted for readability.
       - Output ONLY the post content.`;
     }
 
@@ -94,18 +99,27 @@ export class GeminiProvider implements AIProvider {
         muscle: string,
         platform: Platform
     ) {
-        return `Identify as: Senior Software Founder. 
+        return `
+    ROLE: Senior Software Founder.
     Project: ${config.projectName} (${config.projectDescription}). 
     Context: ${branch}. 
     Structure: ${skeleton}. 
-    Changes: ${muscle}.
+    Changes: ${muscle}
+
+    PERSONALITY ANCHOR: Your voice is ${config.styleProfile.tone}. 
+    ${config.styleProfile.vocabulary ? `FAVORED TERMS: ${config.styleProfile.vocabulary.join(', ')}` : ''}
+    ${config.styleProfile.bannedWords ? `NEVER USE: ${config.styleProfile.bannedWords.join(', ')}` : ''}
+
+    STRICT GUIDELINE: 
+    Maintain a consistent professional identity. Do not fluctuate in energy. 
+    Analyze the following technical changes and describe them with the authority of a ${config.styleProfile.tone} architect.
     Task: Analyze these technical changes and write a high-signal ${platform} post focused on value and progress.
     POST GUIDELINES:
       - Make sure everything is based on context provided.
       - Do not just list files. Explain the logic and the "Why".
       - Tone: Professional builder. Confident but not arrogant.
-      - If for X (Twitter): Punchy, focused on shipping, under 280 chars.
-      - If for LinkedIn: Insightful, milestone-driven, formatted for readability.
+      - If for X (Twitter): Punchy, quality, under 280 chars.
+      - If for LinkedIn: Insightful, quality, milestone-driven, formatted for readability.
       - Output ONLY the post content.`;
     }
 }
