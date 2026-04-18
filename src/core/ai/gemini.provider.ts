@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI, type GenerativeModel } from "@google/generative-ai";
 import type { AIProvider } from "./provider.interface";
 import type { ProjectConfig } from "../../config/store";
-import type { Platform } from "../../types/index";
+import type { Platform, ProjectIdentity } from "../../types/index";
 import { APIProviderError } from "../../utils/errors";
 import * as fs from 'fs';
 
@@ -15,13 +15,14 @@ export class GeminiProvider implements AIProvider {
 
     async *generateDraftStream(
         config: ProjectConfig,
+        identity: ProjectIdentity,
         branch: string,
         skeleton: string,
         muscle: string,
         platform: Platform,
         imagePath?: string
     ): AsyncGenerator<string> {
-        const prompt = this.buildPrompt(config, branch, skeleton, muscle, platform);
+        const prompt = this.buildPrompt(config, identity, branch, skeleton, muscle, platform);
         const parts: any[] = [{ text: prompt }];
 
         if (imagePath && fs.existsSync(imagePath)) {
@@ -47,6 +48,7 @@ export class GeminiProvider implements AIProvider {
      */
     async refineDraft(
         config: ProjectConfig,
+        identity: ProjectIdentity,
         branch: string,
         skeleton: string,
         muscle: string,
@@ -54,7 +56,7 @@ export class GeminiProvider implements AIProvider {
         currentDraft: string,
         feedback: string
     ): Promise<string> {
-        const prompt = this.draftPrompt(config, branch, skeleton, muscle, platform, currentDraft, feedback);
+        const prompt = this.draftPrompt(config, identity, branch, skeleton, muscle, platform, currentDraft, feedback);
         try {
             const result = await this.model.generateContent(prompt);
             return result.response.text();
@@ -65,6 +67,7 @@ export class GeminiProvider implements AIProvider {
 
     private draftPrompt(
         config: ProjectConfig,
+        identity: ProjectIdentity,
         branch: string,
         skeleton: string,
         muscle: string,
@@ -72,54 +75,73 @@ export class GeminiProvider implements AIProvider {
         currentDraft: string,
         feedback: string
     ) {
-        return `Identify as: Senior Software Founder. 
-    Project: ${config.projectName} (${config.projectDescription}). 
-    Context: ${branch}. 
-    Structure: ${skeleton}. 
-    Changes: ${muscle}.
-    
-    PERSONALITY ANCHOR: Your voice is ${config.styleProfile.tone}. 
-    ${config.styleProfile.vocabulary ? `FAVORED TERMS: ${config.styleProfile.vocabulary.join(', ')}` : ''}
-    ${config.styleProfile.bannedWords ? `NEVER USE: ${config.styleProfile.bannedWords.join(', ')}` : ''}
+        const { tone, bannedWords, vocabulary } = config.styleProfile;
 
+        return `
+    [INST]
+    ROLE: Senior Software Architect & Founder.
+    PROJECT: ${config.projectName} (${config.projectDescription}).
+    TECH STACK: ${identity.techStack.join(', ')}.
+    
     Task: CURRENT DRAFT: "${currentDraft}"FEEDBACK: "${feedback}"Rewrite the draft based on the feedback for ${platform}. Output ONLY the new draft.
-    POST GUIDELINES:
-      - Make sure everything is based on context provided.
-      - Do not just list files. Explain the logic and the "Why".
-      - Tone: Professional builder. Confident but not arrogant.
-      - If for X (Twitter): Punchy, quality, under 280 chars.
-      - If for LinkedIn: Insightful, milestone-driven, quality, formatted for readability.
-      - Output ONLY the post content.`;
+    
+    INTENT CATEGORIZATION:
+    1. LOGIC: What algorithmic or functional changes occurred?
+    2. ARCHITECTURE: How does this change the "Skeleton" or system design?
+    3. VALUE: Why does this matter to the end user or the business?
+
+    STRICT CONSTRAINTS:
+    - VOICE: ${tone}. No corporate jargon. No "AI fluff."
+    - ${vocabulary ? `FAVORED TERMS: ${vocabulary.join(', ')}` : ''}
+    - ${bannedWords ? `Banned: ${bannedWords.join(', ')}` : ''}
+    - AUTHORITY: Match the user's technical density. If the code is complex, the post should be precise.
+    
+    CONTEXT:
+    Branch: ${branch}
+    Structure: ${skeleton}
+    Diffs: ${muscle}
+    
+    OUTPUT: A punchy, milestone-driven post focused on technical progress.
+    [/INST]
+    `;
     }
 
     private buildPrompt(
         config: ProjectConfig,
+        identity: ProjectIdentity, // Pass the new identity here
         branch: string,
         skeleton: string,
         muscle: string,
         platform: Platform
     ) {
+        const { tone, bannedWords, vocabulary } = config.styleProfile;
+
         return `
-    ROLE: Senior Software Founder.
-    Project: ${config.projectName} (${config.projectDescription}). 
-    Context: ${branch}. 
-    Structure: ${skeleton}. 
-    Changes: ${muscle}
+    [INST]
+    ROLE: Senior Software Architect & Founder.
+    PROJECT: ${config.projectName} (${config.projectDescription}).
+    TECH STACK: ${identity.techStack.join(', ')}.
+    
+    TASK: Analyze the provided Git Diffs and generate a high-signal ${platform} post.
+    
+    INTENT CATEGORIZATION:
+    1. LOGIC: What algorithmic or functional changes occurred?
+    2. ARCHITECTURE: How does this change the "Skeleton" or system design?
+    3. VALUE: Why does this matter to the end user or the business?
 
-    PERSONALITY ANCHOR: Your voice is ${config.styleProfile.tone}. 
-    ${config.styleProfile.vocabulary ? `FAVORED TERMS: ${config.styleProfile.vocabulary.join(', ')}` : ''}
-    ${config.styleProfile.bannedWords ? `NEVER USE: ${config.styleProfile.bannedWords.join(', ')}` : ''}
-
-    STRICT GUIDELINE: 
-    Maintain a consistent professional identity. Do not fluctuate in energy. 
-    Analyze the following technical changes and describe them with the authority of a ${config.styleProfile.tone} architect.
-    Task: Analyze these technical changes and write a high-signal ${platform} post focused on value and progress.
-    POST GUIDELINES:
-      - Make sure everything is based on context provided.
-      - Do not just list files. Explain the logic and the "Why".
-      - Tone: Professional builder. Confident but not arrogant.
-      - If for X (Twitter): Punchy, quality, under 280 chars.
-      - If for LinkedIn: Insightful, quality, milestone-driven, formatted for readability.
-      - Output ONLY the post content.`;
+    STRICT CONSTRAINTS:
+    - VOICE: ${tone}. No corporate jargon. No "AI fluff."
+    - ${vocabulary ? `FAVORED TERMS: ${vocabulary.join(', ')}` : ''}
+    - ${bannedWords ? `Banned: ${bannedWords.join(', ')}` : ''}
+    - AUTHORITY: Match the user's technical density. If the code is complex, the post should be precise.
+    
+    CONTEXT:
+    Branch: ${branch}
+    Structure: ${skeleton}
+    Diffs: ${muscle}
+    
+    OUTPUT: A punchy, milestone-driven post focused on technical progress.
+    [/INST]
+    `;
     }
 }

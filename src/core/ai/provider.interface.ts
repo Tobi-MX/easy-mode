@@ -1,9 +1,10 @@
 import type { ProjectConfig } from '../../config/store';
-import type { Platform } from '../../types/index';
+import type { Platform, ProjectIdentity } from '../../types/index';
 
 export interface AIProvider {
     generateDraftStream(
         config: ProjectConfig,
+        identity: ProjectIdentity,
         branch: string,
         skeleton: string,
         muscle: string,
@@ -12,6 +13,7 @@ export interface AIProvider {
 
     refineDraft(
         config: ProjectConfig,
+        identity: ProjectIdentity,
         branch: string,
         skeleton: string,
         muscle: string,

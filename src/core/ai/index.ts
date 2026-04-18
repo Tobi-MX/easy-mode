@@ -1,6 +1,6 @@
 import type { AIProvider } from "./provider.interface";
 import type { ProjectConfig } from "../../config/store";
-import type { Platform } from "../../types/index";
+import type { Platform, ProjectIdentity } from "../../types/index";
 import { APIProviderError } from "../../utils/errors";
 
 export class AIService {
@@ -9,7 +9,9 @@ export class AIService {
     /**
      * Generates a draft with a simple retry mechanism for rate limiting.
      */
-    async *generateWithRetry(config: ProjectConfig,
+    async *generateWithRetry(
+        config: ProjectConfig,
+        identity: ProjectIdentity,
         branch: string,
         skeleton: string,
         muscle: string,
@@ -17,7 +19,7 @@ export class AIService {
         retries = 2
     ): AsyncGenerator<string> {
         try {
-            const stream = this.provider.generateDraftStream(config, branch, skeleton, muscle, platform);
+            const stream = this.provider.generateDraftStream(config, identity, branch, skeleton, muscle, platform);
 
             for await (const chunk of stream) {
                 yield chunk;
@@ -27,7 +29,7 @@ export class AIService {
             if (retries > 0 && error.status === 429) {
                 console.log("\n⚠️ Rate limit hit. Retrying in 2 seconds...");
                 await new Promise(res => setTimeout(res, 2000));
-                yield* this.generateWithRetry(config, branch, skeleton, muscle, platform, retries - 1);
+                yield* this.generateWithRetry(config, identity, branch, skeleton, muscle, platform, retries - 1);
             }
 
             if (error.status === 429) {
@@ -43,6 +45,7 @@ export class AIService {
      */
     async refine(
         config: ProjectConfig,
+        identity: ProjectIdentity,
         branch: string, 
         skeleton: string, 
         muscle: string, 
@@ -51,7 +54,8 @@ export class AIService {
         feedback: string): Promise<string> {
         // We could also add retry logic here if needed
         return await this.provider.refineDraft(
-            config, 
+            config,
+            identity, 
             branch, 
             skeleton, 
             muscle, 

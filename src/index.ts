@@ -94,6 +94,7 @@ async function main() {
         const { branch } = await git.getContext();
         const muscle = await git.getFilteredDiff(commitCount as number);
         const skeleton = ProjectScanner.getSkeleton();
+        const identity = ProjectScanner.getIdentity();
 
         // Brain: Execute AI Generation with Gemini
         const provider = new GeminiProvider(process.env.GEMINI_API_KEY!);
@@ -101,6 +102,7 @@ async function main() {
 
         const stream = ai.generateWithRetry(
             config,
+            identity,
             branch,
             skeleton,
             muscle,
@@ -169,6 +171,7 @@ async function main() {
                     s.start('Refining...');
                     finalDraft = await ai.refine(
                         config,
+                        identity,
                         branch,
                         skeleton,
                         muscle,
