@@ -1,5 +1,5 @@
 import * as p from '@clack/prompts';
-import { ConfigStore, ProjectConfig, ProjectConfigSchema } from '../config/store';
+import { ConfigStore, ProjectConfig } from '../config/store';
 
 export async function runSetupWizard(): Promise<ProjectConfig> {
   const project = await p.group(
