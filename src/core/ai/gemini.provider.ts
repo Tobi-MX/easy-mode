@@ -83,7 +83,7 @@ export class GeminiProvider implements AIProvider {
     PROJECT: ${config.projectName} (${config.projectDescription}).
     TECH STACK: ${identity.techStack.join(', ')}.
     
-    Task: CURRENT DRAFT: "${currentDraft}"FEEDBACK: "${feedback}"Rewrite the draft based on the feedback for ${platform}. Output ONLY the new draft.
+    Task: CURRENT DRAFT: "${currentDraft}"FEEDBACK: "${feedback}"Rewrite the draft based on the feedback for ${platform}. Output ONLY the new draft. MAKE SURE FEEDBACK IS PRIORITY!!!
     
     INTENT CATEGORIZATION:
     1. LOGIC: What algorithmic or functional changes occurred?
@@ -104,6 +104,7 @@ export class GeminiProvider implements AIProvider {
     OUTPUT: A punchy, milestone-driven post focused on technical progress.
 
     POST GUIDELINES:
+      - The post is an update, it should start with update on...
       - Make sure everything is based on context provided.
       - Do not just list files. Explain the logic and the "Why".
       - If for X (Twitter): Punchy, quality, under 280 chars.
@@ -150,6 +151,7 @@ export class GeminiProvider implements AIProvider {
     OUTPUT: A punchy, milestone-driven post focused on technical progress.
 
     POST GUIDELINES:
+      - The post is an update, it should start with update on...
       - Make sure everything is based on context provided.
       - Do not just list files. Explain the logic and the "Why".
       - If for X (Twitter): Punchy, quality, under 280 chars.

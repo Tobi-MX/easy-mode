@@ -2,7 +2,7 @@
   "projectName": "Easy mode CLI",
   "projectDescription": "Automating social proof for developers",
   "styleProfile": {
-    "tone": "academic",
+    "tone": "builder",
     "bannedWords": [
       "excited",
       "delighted",
