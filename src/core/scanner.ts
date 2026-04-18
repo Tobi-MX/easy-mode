@@ -1,7 +1,33 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { ProjectIdentity } from '../types';
 
 export class ProjectScanner {
+
+    static getIdentity(): ProjectIdentity {
+        const pkgPath = path.join(process.cwd(), 'package.json');
+        const readmePath = path.join(process.cwd(), 'README.md');
+
+        let dependencies: string[] = [];
+        let version = '0.1.0';
+
+        if (fs.existsSync(pkgPath)) {
+            const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+            dependencies = Object.keys(pkg.dependencies || {});
+            version = pkg.version || '0.1.0';
+        }
+
+        const readmeContent = fs.existsSync(readmePath)
+            ? fs.readFileSync(readmePath, 'utf-8').slice(0, 500) // First 500 chars for context
+            : '';
+
+        return {
+            techStack: dependencies,
+            maturity: version,
+            corePurpose: readmeContent
+        };
+    }
+
     /**
      * Generates a condensed directory tree.
      * Excludes noisy folders to maximize AI context density.

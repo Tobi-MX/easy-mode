@@ -10,3 +10,9 @@ export interface ExtractionContext {
     muscle: string;    // The filtered git diff
     skeleton: string;  // The project directory tree
 }
+
+export interface ProjectIdentity {
+    techStack: string[];
+    maturity: string; // Based on version or README length
+    corePurpose: string;
+}
