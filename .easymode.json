@@ -1,7 +1,18 @@
 {
-  "projectName": "Easy Mode CLI",
+  "projectName": "Easy mode CLI",
   "projectDescription": "Automating social proof for developers",
   "styleProfile": {
-    "tone": "builder"
+    "tone": "academic",
+    "bannedWords": [
+      "excited",
+      "delighted",
+      "enthused"
+    ],
+    "vocabulary": [
+      "logic",
+      "architecture",
+      "shipping",
+      "signal"
+    ]
   }
 }

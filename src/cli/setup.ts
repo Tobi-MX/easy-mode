@@ -21,6 +21,23 @@ export async function runSetupWizard(): Promise<ProjectConfig> {
             if (!value || value.length < 10) return 'Please provide a more descriptive goal (min 10 chars)';
           }
         }),
+
+      tone: () =>
+        p.select({
+          message: 'Choose your professional tone:',
+          options: [
+            { value: 'builder', label: '🛠️ Builder', hint: 'Direct, focuses on shipping and implementation' },
+            { value: 'stoic', label: '⚖️ Stoic', hint: 'Minimalist, high-authority, logic-driven' },
+            { value: 'academic', label: '🎓 Academic', hint: 'Precise, focuse on theory, and correctness' },
+            { value: 'energetic', label: '🚀 Energetic', hint: 'High-momentum, focuses on growth and impact' },
+          ],
+        }),
+
+      bannedWords: () =>
+        p.text({
+          message: 'Enter words the AI should NEVER use (comma separated):',
+          placeholder: 'e.g., excited, delve, tapestry, leveraging, delighted',
+        }),
     },
 
     {
@@ -31,8 +48,20 @@ export async function runSetupWizard(): Promise<ProjectConfig> {
     }
   );
 
-  // Save it to disk so they never see this screen again
-  const parsed = ProjectConfigSchema.parse(project);
-  ConfigStore.save(parsed);
-  return parsed
+  // Clean and transform the data
+  const config: ProjectConfig = {
+    projectName: project.projectName,
+    projectDescription: project.projectDescription,
+    styleProfile: {
+      tone: project.tone as 'builder' | 'stoic' | 'academic' | 'energetic',
+      bannedWords: project.bannedWords
+        .split(',')
+        .map(w => w.trim().toLowerCase())
+        .filter(w => w.length > 0),
+      vocabulary: ['logic', 'architecture', 'shipping', 'signal']
+    }
+  };
+
+  ConfigStore.save(config);
+  return config;
 } 
