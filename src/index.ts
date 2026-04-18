@@ -1,4 +1,8 @@
 import * as p from '@clack/prompts';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
+import 'dotenv/config';
 import { GitManager } from './core/git';
 import { ProjectScanner } from './core/scanner';
 import { ConfigStore } from './config/store';
@@ -8,8 +12,8 @@ import { EasyModeError } from './utils/errors';
 import { runSetupWizard } from './cli/setup';
 import { Platform } from './types';
 import clipboard from 'clipboardy';
-import 'dotenv/config';
-import { openInEditor } from './cli/editor';
+import { spawnSync } from 'child_process';
+//import { openInEditor } from './cli/editor';
 
 async function main() {
     p.intro('🚀 Easy Mode: High-Signal Shipping');
@@ -131,18 +135,32 @@ async function main() {
                 userSatisfied = true;
 
             } else if (action === 'edit') {
-                // We use p.text but pre-fill it with the finalDraft
-                const edited = await p.text({
-                    message: 'Edit your draft (Enter to save, Esc to go back):',
-                    initialValue: finalDraft, // This pre-fills the prompt with the AI text
-                    validate: (value: string | undefined) => {
-                        if (!value || value.length < 10) return 'Draft is too short!';
-                    }
-                });
+                const tempFile = path.join(os.tmpdir(), `easymode-${Date.now()}.txt`);
+                fs.writeFileSync(tempFile, finalDraft);
 
-                if (!p.isCancel(edited)) {
-                    finalDraft = edited as string;
+                p.log.info('Opening VS Code... Save and CLOSE the tab to continue.');
+
+                try {
+                    // Use spawnSync with 'inherit' so it doesn't feel "stuck"
+                    const result = spawnSync('code', ['--wait', tempFile], {
+                        shell: true,
+                        stdio: 'inherit'
+                    });
+
+                    if (result.status !== 0) {
+                        throw new Error('VS Code closed with an error');
+                    }
+
+                    const editedContent = fs.readFileSync(tempFile, 'utf-8');
+                    finalDraft = editedContent.trim();
+                    fs.unlinkSync(tempFile);
+
+                    p.log.success('Draft updated from VS Code!');
+                } catch (err) {
+                    p.log.error('Could not sync with VS Code. Try the AI Refine instead.');
+                    // Fallback: don't crash, just keep the old draft
                 }
+
             } else if (action === 'refine') {
                 const feedback = await p.text({ message: 'What should the AI change?' });
                 if (!p.isCancel(feedback)) {

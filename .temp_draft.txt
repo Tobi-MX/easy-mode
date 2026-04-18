@@ -1,0 +1,14 @@
+Thrilled to share a major leap forward for Easy Mode CLI! 🚀 We're constantly evolving to make social proof effortless and impactful for developers, and this latest update significantly elevates our AI's capabilities and user experience.
+
+We've supercharged our AI's contextual understanding, allowing it to generate and refine your project updates with unprecedented precision. Now, when you're crafting that perfect LinkedIn post or tweet about your latest commit, Easy Mode CLI considers the full picture: your project's goal, the specific branch, the codebase structure, and the exact changes you've made. This deep contextual awareness means higher quality, more relevant, and truly insightful drafts right out of the box.
+
+Key enhancements include:
+*   **Intelligent Refinement:** Our AI can now refine drafts based on your feedback with a much richer understanding of your project's nuances. This ensures the final output perfectly captures your message, tone, and the 'why' behind your code.
+*   **Seamless In-CLI Editing:** We've streamlined the workflow by integrating direct draft editing within the CLI. No more context switching – make quick tweaks and perfect your copy without leaving your terminal.
+*   **Advanced Prompt Engineering:** Behind the scenes, our sophisticated prompt guidelines empower the AI to generate platform-optimized content (e.g., concise for X, insightful for LinkedIn), ensuring your social proof hits the mark every time.
+
+This isn't just about automation; it's about intelligent amplification of your hard work. Easy Mode CLI is becoming an even more powerful co-pilot for sharing your development journey effectively and professionally.
+
+Stay tuned for more!
+
+#DevTools #AI #SocialProof #EasyModeCLI #SoftwareDevelopment #Productivity
