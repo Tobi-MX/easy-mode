@@ -6,7 +6,11 @@ import { z } from 'zod';
 export const ProjectConfigSchema = z.object({
     projectName: z.string().min(1, "Project name cannot be empty"),
     projectDescription: z.string().min(10, "Give a bit more detail (min 10 chars)"),
-    lastLaunched: z.string().optional(),
+    styleProfile: z.object({
+        tone: z.enum(['stoic', 'energetic', 'academic', 'builder']),
+        vocabulary: z.array(z.string()).optional(), // Words you LOVE to use
+        bannedWords: z.array(z.string()).optional(), // Words you HATE
+    }).default({ tone: 'builder' })
 });
 
 export type ProjectConfig = z.infer<typeof ProjectConfigSchema>;

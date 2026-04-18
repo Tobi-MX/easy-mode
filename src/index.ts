@@ -2,7 +2,9 @@ import * as p from '@clack/prompts';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
+
 import 'dotenv/config';
+
 import { GitManager } from './core/git';
 import { ProjectScanner } from './core/scanner';
 import { ConfigStore } from './config/store';
