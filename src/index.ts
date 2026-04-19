@@ -14,7 +14,7 @@ import { EasyModeError } from './utils/errors';
 import { runSetupWizard } from './cli/setup';
 import { Platform } from './types';
 import clipboard from 'clipboardy';
-import { spawnSync } from 'child_process';
+import { openInEditor } from './cli/editor';
 //import { openInEditor } from './cli/editor';
 
 async function main() {
@@ -145,20 +145,7 @@ async function main() {
                 p.log.info('Opening VS Code... Save and CLOSE the tab to continue.');
 
                 try {
-                    // Use spawnSync with 'inherit' so it doesn't feel "stuck"
-                    const result = spawnSync('code', ['--wait', tempFile], {
-                        shell: true,
-                        stdio: 'inherit'
-                    });
-
-                    if (result.status !== 0) {
-                        throw new Error('VS Code closed with an error');
-                    }
-
-                    const editedContent = fs.readFileSync(tempFile, 'utf-8');
-                    finalDraft = editedContent.trim();
-                    fs.unlinkSync(tempFile);
-
+                    await openInEditor(finalDraft, tempFile)
                     p.log.success('Draft updated from VS Code!');
                 } catch (err) {
                     p.log.error('Could not sync with VS Code. Try the AI Refine instead.');
