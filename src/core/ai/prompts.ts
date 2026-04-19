@@ -38,7 +38,7 @@ Diffs: ${muscle}
 OUTPUT: A punchy, milestone-driven post focused on technical progress.
 
 POST GUIDELINES:
-- The post is an update, it should start with update on...
+- The post is an update. Choose a natural way to start that fits the ${platform} culture.
 - Make sure everything is based on context provided.
 - Do not just list files. Explain the logic and the "Why".
 - If for X (Twitter): Punchy, quality, under 280 chars.
@@ -87,7 +87,7 @@ Diffs: ${muscle}
 OUTPUT: A punchy, milestone-driven post focused on technical progress.
 
 POST GUIDELINES:
-- The post is an update, it should start with update on...
+- The post is an update. Choose a natural way to start that fits the ${platform} culture.
 - Make sure everything is based on context provided.
 - Do not just list files. Explain the logic and the "Why".
 - If for X (Twitter): Punchy, quality, under 280 chars.
