@@ -176,7 +176,7 @@ async function main() {
                         skeleton,
                         muscle,
                         platform,
-                        finalDraft as Platform,
+                        finalDraft,
                         feedback as string
                     );
                     p.note(finalDraft, `Your ${platform} Draft`);

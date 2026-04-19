@@ -26,13 +26,19 @@ export class AIService {
             }
 
         } catch (error: any) {
-            if (retries > 0 && error.status === 429) {
+            const isRateLimit =
+                error?.status === 429 ||
+                error?.code === 429 ||
+                error?.error?.code === 429 ||
+                error?.status === "RESOURCE_EXHAUSTED";
+
+            if (retries > 0 && isRateLimit) {
                 console.log("\n⚠️ Rate limit hit. Retrying in 2 seconds...");
                 await new Promise(res => setTimeout(res, 2000));
                 yield* this.generateWithRetry(config, identity, branch, skeleton, muscle, platform, retries - 1);
             }
 
-            if (error.status === 429) {
+            if (isRateLimit) {
                 throw new APIProviderError("Rate limit hit permanently. Please try again later.");
             }
 
@@ -46,21 +52,21 @@ export class AIService {
     async refine(
         config: ProjectConfig,
         identity: ProjectIdentity,
-        branch: string, 
-        skeleton: string, 
-        muscle: string, 
-        platform: Platform, 
-        currentDraft: string, 
+        branch: string,
+        skeleton: string,
+        muscle: string,
+        platform: Platform,
+        currentDraft: string,
         feedback: string): Promise<string> {
         // We could also add retry logic here if needed
         return await this.provider.refineDraft(
             config,
-            identity, 
-            branch, 
-            skeleton, 
-            muscle, 
-            platform, 
-            currentDraft, 
+            identity,
+            branch,
+            skeleton,
+            muscle,
+            platform,
+            currentDraft,
             feedback
         );
     }
