@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI, type GenerativeModel } from "@google/generative-ai";
 import type { AIProvider } from "./provider.interface";
 import type { ProjectConfig } from "../../config/store";
-import type { Platform, ProjectIdentity } from "../../types/index";
+import type { Mode, Platform, ProjectIdentity } from "../../types/index";
 import { APIProviderError } from "../../utils/errors";
 import * as fs from 'fs';
 import { buildSystemPrompt, buildRefinePrompt } from "./prompts";
@@ -11,7 +11,9 @@ export class GeminiProvider implements AIProvider {
 
     constructor(apiKey: string) {
         const genAI = new GoogleGenerativeAI(apiKey);
-        this.model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        this.model = genAI.getGenerativeModel({ 
+            model: "gemini-3-flash-preview"
+        });
     }
 
     async *generateDraftStream(
@@ -21,9 +23,10 @@ export class GeminiProvider implements AIProvider {
         skeleton: string,
         muscle: string,
         platform: Platform,
-        imagePath?: string
+        mode: Mode,
+        imagePath?: string,
     ): AsyncGenerator<string> {
-        const prompt = buildSystemPrompt(config, identity, branch, skeleton, muscle, platform);
+        const prompt = buildSystemPrompt(config, identity, branch, skeleton, muscle, platform, mode);
         const parts: any[] = [{ text: prompt }];
 
         if (imagePath && fs.existsSync(imagePath)) {
@@ -40,7 +43,7 @@ export class GeminiProvider implements AIProvider {
         }
 
         try {
-            const result = await this.model.generateContentStream(parts);
+            const result = await this.model.generateContentStream(prompt);
             for await (const chunk of result.stream) {
                 const text = chunk.text();
                 if (text) yield text;
@@ -58,9 +61,10 @@ export class GeminiProvider implements AIProvider {
         muscle: string,
         platform: Platform,
         currentDraft: string,
-        feedback: string
+        feedback: string,
+        mode: Mode
     ): Promise<string> {
-        const prompt = buildRefinePrompt(config, identity, branch, skeleton, muscle, platform, currentDraft, feedback);
+        const prompt = buildRefinePrompt(config, identity, branch, skeleton, muscle, platform, currentDraft, feedback, mode);
         try {
             const result = await this.model.generateContent(prompt);
             return result.response.text();

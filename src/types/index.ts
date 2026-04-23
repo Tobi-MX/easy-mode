@@ -1,4 +1,5 @@
 export type Platform = 'X' | 'LINKEDIN' | 'DISCORD';
+export type Mode = 'ship' | 'teach';
 
 export interface ProjectConfig {
     projectName: string;

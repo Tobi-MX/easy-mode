@@ -1,6 +1,6 @@
 import type { AIProvider } from "./provider.interface";
 import type { ProjectConfig } from "../../config/store";
-import type { Platform, ProjectIdentity } from "../../types/index";
+import type { Mode, Platform, ProjectIdentity } from "../../types/index";
 import { APIProviderError } from "../../utils/errors";
 
 export class AIService {
@@ -16,10 +16,11 @@ export class AIService {
         skeleton: string,
         muscle: string,
         platform: Platform,
+        mode: Mode,
         retries = 2
     ): AsyncGenerator<string> {
         try {
-            const stream = this.provider.generateDraftStream(config, identity, branch, skeleton, muscle, platform);
+            const stream = this.provider.generateDraftStream(config, identity, branch, skeleton, muscle, platform, mode);
 
             for await (const chunk of stream) {
                 yield chunk;
@@ -35,7 +36,7 @@ export class AIService {
             if (retries > 0 && isRateLimit) {
                 console.log("\n⚠️ Rate limit hit. Retrying in 2 seconds...");
                 await new Promise(res => setTimeout(res, 2000));
-                yield* this.generateWithRetry(config, identity, branch, skeleton, muscle, platform, retries - 1);
+                yield* this.generateWithRetry(config, identity, branch, skeleton, muscle, platform, mode, retries - 1);
             }
 
             if (isRateLimit) {
@@ -57,7 +58,9 @@ export class AIService {
         muscle: string,
         platform: Platform,
         currentDraft: string,
-        feedback: string): Promise<string> {
+        feedback: string,
+        mode: Mode
+    ): Promise<string> {
         // We could also add retry logic here if needed
         return await this.provider.refineDraft(
             config,
@@ -67,7 +70,8 @@ export class AIService {
             muscle,
             platform,
             currentDraft,
-            feedback
+            feedback,
+            mode
         );
     }
 }

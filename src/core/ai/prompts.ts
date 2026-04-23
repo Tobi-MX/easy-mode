@@ -1,5 +1,6 @@
 import type { ProjectConfig } from "../../config/store";
-import type { Platform, ProjectIdentity } from "../../types/index";
+import type { Mode, Platform, ProjectIdentity } from "../../types/index";
+
 
 export const buildSystemPrompt = (
     config: ProjectConfig,
@@ -7,46 +8,47 @@ export const buildSystemPrompt = (
     branch: string,
     skeleton: string,
     muscle: string,
-    platform: Platform
+    platform: Platform,
+    mode: Mode
 ) => {
     const { tone, bannedWords, vocabulary } = config.styleProfile;
 
     return `
 [INST]
-ROLE: Senior Software Architect & Founder.
-PROJECT: ${config.projectName} (${config.projectDescription}).
-TECH STACK: ${identity.techStack.join(', ')}.
+<<SYS>>
+You are a Technical Storyteller. Your mission is to translate code into high-signal ${platform} content.
 
-TASK: Analyze the provided Git Diffs and generate a high-signal ${platform} post.
+CURRENT MODE: ${mode.toUpperCase()}
+- If SHIP: Focus on progress, features, and the "Why it matters."
+- If TEACH: Focus on the technical "How," the logic behind the change, and the lesson for other devs.
 
-INTENT CATEGORIZATION:
-1. LOGIC: What algorithmic or functional changes occurred?
-2. ARCHITECTURE: How does this change the "Skeleton" or system design?
-3. VALUE: Why does this matter to the end user or the business?
-
-STRICT CONSTRAINTS:
-- VOICE: ${tone}. No corporate jargon. No "AI fluff."
-- ${vocabulary ? `FAVORED TERMS: ${vocabulary.join(', ')}` : ''}
-- ${bannedWords ? `Banned: ${bannedWords.join(', ')}` : ''}
-- AUTHORITY: Match the user's technical density. If the code is complex, the post should be precise.
+ADAPTIVE RULES:
+1. Lexicon: Naturally weave in these words: ${vocabulary?.join(', ') || 'Standard tech terms'}.
+2. Voice: ${tone}. Authentic, zero-fluff, human-centric.
+3. Banned: Never use ${bannedWords?.join(', ')}.
+4. Variance: Avoid starting with "Today I..." or "I'm happy to..." Generate a unique structure every time.
 
 CONTEXT:
 Branch: ${branch}
 Structure: ${skeleton}
-Diffs: ${muscle}
 
-OUTPUT: A punchy, milestone-driven post focused on technical progress.
+CONTEXT PRIORITY:
+Source Code Logic > Architectural Shifts > Documentation. Ignore lockfiles.
+<</SYS>>
 
-POST GUIDELINES:
-- The post is an update. Choose a natural way to start that fits the ${platform} culture.
-- Make sure everything is based on context provided.
-- Do not just list files. Explain the logic and the "Why".
-- If for X (Twitter): Punchy, quality, under 280 chars.
-- If for LinkedIn: Insightful, milestone-driven, quality, formatted for readability.
-- Output ONLY the post content.
+PROJECT: ${config.projectName} (${config.projectDescription})
+STACK: ${identity.techStack.join(', ')}
+
+TASK: Analyze these diffs and generate a ${mode} post for ${platform}.
+DIFFS:
+${muscle}
+
+OUTPUT: Only the raw post text.
 [/INST]
 `;
 };
+
+
 
 export const buildRefinePrompt = (
     config: ProjectConfig,
@@ -56,43 +58,33 @@ export const buildRefinePrompt = (
     muscle: string,
     platform: Platform,
     currentDraft: string,
-    feedback: string
+    feedback: string,
+    mode: Mode
 ) => {
     const { tone, bannedWords, vocabulary } = config.styleProfile;
 
     return `
-[INST]
-ROLE: Senior Software Architect & Founder.
-PROJECT: ${config.projectName} (${config.projectDescription}).
-TECH STACK: ${identity.techStack.join(', ')}.
+    [INST]
+<<SYS>>
+You are a Technical Editor. Your task is to refine the existing draft while strictly preserving the ${mode.toUpperCase()} intent post for ${platform} .
 
-Task: CURRENT DRAFT: "${currentDraft}"FEEDBACK: "${feedback}"Rewrite the draft based on the feedback for ${platform}. Output ONLY the new draft. MAKE SURE FEEDBACK IS PRIORITY!!!
+REFINEMENT RULES:
+1. FEEDBACK IS PRIORITY: Apply the user's changes exactly as requested.
+2. PRESERVE IDENTITY: Do not lose the ${tone} tone or the ${vocabulary?.join(', ')} lexicon.
+3. NO NEW FLUFF: If the user asks for a "shorter" version, do not add generic filler to compensate.
+4. BANNED: Strictly avoid ${bannedWords?.join(', ')}.
+<</SYS>>
 
-INTENT CATEGORIZATION:
-1. LOGIC: What algorithmic or functional changes occurred?
-2. ARCHITECTURE: How does this change the "Skeleton" or system design?
-3. VALUE: Why does this matter to the end user or the business?
-
-STRICT CONSTRAINTS:
-- VOICE: ${tone}. No corporate jargon. No "AI fluff."
-- ${vocabulary ? `FAVORED TERMS: ${vocabulary.join(', ')}` : ''}
-- ${bannedWords ? `Banned: ${bannedWords.join(', ')}` : ''}
-- AUTHORITY: Match the user's technical density. If the code is complex, the post should be precise.
+CURRENT DRAFT: "${currentDraft}"
+USER FEEDBACK: "${feedback}"
 
 CONTEXT:
+identity: ${identity}
 Branch: ${branch}
 Structure: ${skeleton}
 Diffs: ${muscle}
 
-OUTPUT: A punchy, milestone-driven post focused on technical progress.
-
-POST GUIDELINES:
-- The post is an update. Choose a natural way to start that fits the ${platform} culture.
-- Make sure everything is based on context provided.
-- Do not just list files. Explain the logic and the "Why".
-- If for X (Twitter): Punchy, quality, under 280 chars.
-- If for LinkedIn: Insightful, milestone-driven, quality, formatted for readability.
-- Output ONLY the post content.
+OUTPUT: The updated post content only.
 [/INST]
 `;
 };

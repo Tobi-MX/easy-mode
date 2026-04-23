@@ -57,7 +57,7 @@ index 789..012 100644
 
         mockGitMethods.diff.mockResolvedValue(rawDiff);
 
-        const filteredDiff = await gitManager.getFilteredDiff(2);
+        const filteredDiff = await gitManager.getFilteredDiff(2, "teach");
 
         expect(filteredDiff).toContain('Branch: main');
         expect(filteredDiff).toContain('index.ts');

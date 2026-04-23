@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import * as p from '@clack/prompts';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -15,18 +17,42 @@ import { runSetupWizard } from './cli/setup';
 import { Platform } from './types';
 import clipboard from 'clipboardy';
 import { openInEditor } from './cli/editor';
-//import { openInEditor } from './cli/editor';
 
 async function main() {
     p.intro('🚀 Easy Mode: High-Signal Shipping');
 
-    // 1. Memory: Load or Initialize Project Context
-    let config = ConfigStore.get();
+    const args = process.argv.slice(2);
 
-    if (!config) {
-        p.log.info("👋 It looks like this is a new project!");
-        config = await runSetupWizard(); // The "Wizard" call
-        p.log.success("✅ Project context saved to .easymode.json");
+    if (args.includes('--setup')) {
+        await runSetupWizard();
+        return;
+    }
+
+    let mode: 'ship' | 'teach';
+
+    if (args.includes('--teach')) {
+        mode = 'teach';
+    } else if (args.includes('--ship')) {
+        mode = 'ship';
+    } else {
+        // Only ask if no flag was provided (Sensible Defaults!)
+        const selection = await p.select({
+            message: 'What is the intent of this update?',
+            options: [
+                { value: 'ship', label: '🚀 Shipping (Features, Fixes, Wins)' },
+                { value: 'teach', label: '🧠 Teaching (Concepts, Logic, How-to)' },
+            ],
+        });
+
+        if (p.isCancel(selection)) process.exit(0);
+        mode = selection as 'ship' | 'teach';
+    }
+
+    // 1. Memory: Load or Initialize Project Context
+    let config = ConfigStore.get() || ConfigStore.getDefaults();
+
+    if (!ConfigStore.get()) {
+        p.log.info('💡 Identity detected. Using Senior Builder defaults.');
     }
 
     // 2. Muscle: Initialize Git & Commit Selection
@@ -92,7 +118,7 @@ async function main() {
     try {
         // Extraction: Get Branch, Diff, and Skeleton
         const { branch } = await git.getContext();
-        const muscle = await git.getFilteredDiff(commitCount as number);
+        const muscle = await git.getFilteredDiff(commitCount as number, mode);
         const skeleton = ProjectScanner.getSkeleton();
         const identity = ProjectScanner.getIdentity();
 
@@ -106,7 +132,8 @@ async function main() {
             branch,
             skeleton,
             muscle,
-            platform as Platform
+            platform as Platform,
+            mode
         );
 
         s.stop('Brain Connected. Generating:');
@@ -164,7 +191,8 @@ async function main() {
                         muscle,
                         platform,
                         finalDraft,
-                        feedback as string
+                        feedback as string,
+                        mode
                     );
                     p.note(finalDraft, `Your ${platform} Draft`);
                     s.stop('Refined!');

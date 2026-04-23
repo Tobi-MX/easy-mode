@@ -26,6 +26,21 @@ export class ConfigStore {
     }
 
     /**
+     * Checks if the project is already initialized
+     */
+    static getDefaults(): ProjectConfig {
+        return {
+            projectName: path.basename(process.cwd()),
+            projectDescription: "A modern software project.",
+            styleProfile: {
+                tone: 'builder',
+                bannedWords: ['excited', 'delighted', 'tapestry', 'delve'],
+                vocabulary: ['logic', 'architecture', 'shipping']
+            }
+        };
+    }
+
+    /**
      * Retrieves the project "Soul"
      */
     static get(): ProjectConfig | null {

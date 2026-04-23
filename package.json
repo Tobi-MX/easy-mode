@@ -2,15 +2,21 @@
   "name": "easy-mode",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "build": "tsc",
+    "watch": "tsc -w",
+    "prepublishOnly": "npm run build"
   },
   "type": "commonjs",
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "bin": {
+    "easy-mode": "dist/index.js"
+  },
   "dependencies": {
     "@clack/prompts": "^1.2.0",
     "@google/generative-ai": "^0.24.1",

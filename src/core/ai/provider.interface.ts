@@ -1,5 +1,5 @@
 import type { ProjectConfig } from '../../config/store';
-import type { Platform, ProjectIdentity } from '../../types/index';
+import type { Mode, Platform, ProjectIdentity } from '../../types/index';
 
 export interface AIProvider {
     generateDraftStream(
@@ -8,7 +8,8 @@ export interface AIProvider {
         branch: string,
         skeleton: string,
         muscle: string,
-        platform: Platform
+        platform: Platform,
+        mode: Mode
     ): AsyncGenerator<string, any, any>;
 
     refineDraft(
@@ -19,6 +20,7 @@ export interface AIProvider {
         muscle: string,
         platform: Platform,
         currentDraft: string, 
-        feedback: string
+        feedback: string,
+        mode: Mode
     ): Promise<string>;
 }
