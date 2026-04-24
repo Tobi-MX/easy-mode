@@ -12,7 +12,7 @@ export class GeminiProvider implements AIProvider {
     constructor(apiKey: string) {
         const genAI = new GoogleGenerativeAI(apiKey);
         this.model = genAI.getGenerativeModel({ 
-            model: "gemini-3-flash-preview"
+            model: "gemini-2.5-flash"
         });
     }
 
