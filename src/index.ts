@@ -73,7 +73,7 @@ async function main() {
         process.exit(0);
     }
 
-    let commitCount: number;
+    let commitCount = Number(selection);
 
     if (selection === 'custom') {
         const customCount = await p.text({
@@ -91,11 +91,31 @@ async function main() {
             process.exit(0);
         }
 
-        commitCount = parseInt(customCount as string);
-    } else {
-        // Safe to parse, the values are '1', '3', '5'
-        commitCount = parseInt(selection as string);
+        commitCount = Number(customCount);
     }
+
+    const v = p.spinner();
+    v.start(`Fetching last ${commitCount} commits...`);
+    const commits = await git.getRecentCommits(commitCount);
+    v.stop('History loaded.');
+
+    const selectedHashes = await p.multiselect({
+        message: 'Select the exact commits to include (Space to toggle):',
+        options: commits.map(c => ({
+            value: c.hash,
+            label: c.message,
+            hint: new Date(c.date).toLocaleDateString()
+        })),
+        initialValues: commits.map(c => c.hash), // Default: All selected
+    });
+
+    if (p.isCancel(selectedHashes)) process.exit(0);
+
+    // 3. Final Analysis
+    v.start('Analyzing technical logic...');
+    const muscle = await git.getFilteredDiffFromHashes(selectedHashes as string[], mode);
+    v.stop('Logic Analyzed.');
+
 
     const platform = await p.select({
         message: 'Select target platform:',
@@ -118,7 +138,6 @@ async function main() {
     try {
         // Extraction: Get Branch, Diff, and Skeleton
         const { branch } = await git.getContext();
-        const muscle = await git.getFilteredDiff(commitCount as number, mode);
         const skeleton = ProjectScanner.getSkeleton();
         const identity = ProjectScanner.getIdentity();
 

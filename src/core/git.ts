@@ -36,6 +36,18 @@ export class GitManager {
     }
 
     /**
+     * Fetch history to populate the Multiselect UI
+     */
+    async getRecentCommits(count: number = 10) {
+        const logs = await this.git.log({ maxCount: count });
+        return logs.all.map(c => ({
+            hash: c.hash,
+            message: c.message,
+            date: c.date
+        }));
+    }
+
+    /**
      * SHIPPING: Aggressive compression.
      * We ONLY care about the delta.
      */
@@ -72,42 +84,34 @@ export class GitManager {
     }
 
     /**
-     * The Master Filter: Mode-Aware & Semantic
+     * THE NEW MASTER: Processes a specific list of hashes picked by the user.
+     * This makes the tool surgical and removes "README bias" at the source.
      */
-    async getFilteredDiff(count: number, mode: Mode): Promise<string> {
+    async getFilteredDiffFromHashes(hashes: string[], mode: 'ship' | 'teach'): Promise<string> {
         const { branch } = await this.getContext();
-        const logs = await this.git.log();
-        const safeCount = Math.min(count, logs.all.length);
+        
+        // Use 'git show' for each hash to get the exact changes in those commits
+        const diffPromises = hashes.map(hash => this.git.show([hash]));
+        const rawDiffs = await Promise.all(diffPromises);
+        const combinedDiff = rawDiffs.join('\n');
 
-        // Fetch raw diff
-        const rawDiff = await this.git.diff([`HEAD~${safeCount}`, 'HEAD']);
+        const fileBlocks = combinedDiff.split('diff --git');
 
-        // 1. Split into file blocks
-        const fileBlocks = rawDiff.split('diff --git');
-
-        // 2. Filter & Prune
-        const cleanBlocks = fileBlocks
-            .filter(block => {
-                // Remove Noise (Lockfiles, build artifacts)
-                return !NOISY_FILES.some(noise => block.includes(noise));
-            })
+        const refined = fileBlocks
+            .filter(block => !NOISY_FILES.some(noise => block.includes(noise)))
             .map(block => {
                 const header = block.split('\n')[0];
-                const isCode = this.HIGH_PRIORITY_CODE.some(ext => header?.includes(ext));
                 const isDoc = header?.includes('.md') || header?.includes('.txt');
 
-                // Logic for README Bias: Truncate docs unless it's a doc-only commit
+                // If code exists in this selection, collapse the docs.
                 if (isDoc && fileBlocks.length > 2) {
                     return block.split('\n').slice(0, 10).join('\n') + '\n [Documentation housekeeping...]';
                 }
 
-                // Apply Mode-based Pruning
                 return mode === 'teach' ? this.pruneForTeaching(block) : this.pruneForShipping(block);
             });
 
-        const finalDiff = cleanBlocks.join('diff --git');
-
-        // If we are teaching, we allow a larger total buffer to Gemini
+        const finalDiff = refined.join('\n');
         const bufferSize = mode === 'teach' ? 20000 : 12000;
 
         return `Branch: ${branch}\nMode: ${mode}\n\n${finalDiff.slice(0, bufferSize)}`;

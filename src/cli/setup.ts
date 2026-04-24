@@ -33,11 +33,17 @@ export async function runSetupWizard(): Promise<ProjectConfig> {
           ],
         }),
 
+      vocabulary: () =>
+        p.text({
+          message: 'Enter words you love to use (comma separated):',
+          placeholder: 'e.g., logic, architecture, simple, depth',
+        }),
+
       bannedWords: () =>
         p.text({
           message: 'Enter words the AI should NEVER use (comma separated):',
           placeholder: 'e.g., excited, delve, tapestry, leveraging, delighted',
-        }),
+        })
     },
 
     {
